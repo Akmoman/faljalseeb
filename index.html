@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مزايدة فلج السيب</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f8fafc;
+        }
+        .font-arabic {
+            font-family: 'Tajawal', sans-serif;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="text-right text-slate-800">
+
+    <!-- الشريط العلوي -->
+    <header id="main-header" class="bg-amber-900 text-white shadow-lg sticky top-0 z-40 transition-colors">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="droplets" id="header-icon" class="w-10 h-10 text-cyan-300"></i>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold">مزايدة فلج السيب</h1>
+                        <p id="header-subtitle" class="text-sm flex items-center gap-1 mt-1 text-amber-200">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i> بلدة منال، وادي بني رواحة
+                        </p>
+                    </div>
+                </div>
+
+                <!-- أزرار التنقل -->
+                <div id="nav-buttons" class="hidden flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                    <div id="admin-nav" class="hidden flex items-center gap-3">
+                        <button onclick="switchView('dashboard')" id="btn-nav-dashboard" class="px-4 py-2 rounded-full font-bold transition-colors flex items-center gap-2 whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> لوحة التحكم
+                        </button>
+                        <button onclick="switchView('auction')" id="btn-nav-auction" class="px-4 py-2 rounded-full font-bold transition-colors flex items-center gap-2 whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700">
+                            <i data-lucide="gavel" class="w-4 h-4"></i> شاشة المزايدة
+                        </button>
+                        <div class="h-6 w-px bg-slate-700 mx-1 hidden md:block"></div>
+                    </div>
+
+                    <div id="user-badge" class="px-4 py-2 rounded-full border flex items-center gap-2 whitespace-nowrap bg-emerald-800/60 border-emerald-700">
+                        <i data-lucide="user" id="user-badge-icon" class="w-4 h-4 text-emerald-300"></i>
+                        <span id="current-user-name" class="font-bold text-sm">اسم المستخدم</span>
+                    </div>
+                    
+                    <button onclick="handleLogout()" class="p-2 bg-red-900/50 hover:bg-red-800 rounded-full text-red-200 transition-colors" title="تسجيل الخروج">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="min-h-[80vh]">
+        <!-- واجهة الدخول -->
+        <div id="view-login" class="flex items-center justify-center p-4 min-h-[80vh]">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-100">
+                <div class="flex w-full bg-slate-100 border-b border-slate-200">
+                    <button onclick="switchLoginTab('user')" id="tab-user" class="flex-1 py-4 font-bold transition-colors bg-amber-900 text-white">دخول المشتركين</button>
+                    <button onclick="switchLoginTab('admin')" id="tab-admin" class="flex-1 py-4 font-bold transition-colors text-slate-600 hover:bg-slate-200">دخول الإدارة</button>
+                </div>
+
+                <div id="login-header-bg" class="px-6 py-6 text-center bg-amber-900/5">
+                    <i data-lucide="droplets" id="login-header-icon" class="w-12 h-12 mx-auto mb-3 text-amber-600"></i>
+                    <h2 id="login-header-title" class="text-2xl font-bold font-arabic text-amber-900">تسجيل الدخول للمزايدة</h2>
+                    <p id="login-header-desc" class="text-slate-500 mt-2 text-sm">أدخل بيانات الدخول للمتابعة</p>
+                </div>
+                
+                <form id="form-login" onsubmit="handleLogin(event)" class="p-6 space-y-5">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-2 flex items-center gap-2">
+                            <i data-lucide="phone" class="w-4 h-4"></i> رقم الهاتف
+                        </label>
+                        <input type="text" id="login-phone" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-left" dir="ltr" placeholder="9XXXXXXX">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-2 flex items-center gap-2">
+                            <i data-lucide="lock" class="w-4 h-4"></i> الرقم السري (PIN)
+                        </label>
+                        <input type="password" id="login-pin" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-left" dir="ltr" placeholder="****">
+                    </div>
+                    <button type="submit" id="btn-login-submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                        <i data-lucide="log-in" class="w-5 h-5"></i> تسجيل الدخول
+                    </button>
+                    
+                    <div id="login-user-footer" class="text-center mt-4">
+                        <p class="text-slate-500 text-sm mb-2">للحصول على حساب ورقم سري، يرجى التواصل مع إدارة الفلج.</p>
+                        <button type="button" onclick="switchAuthMode('register')" class="text-amber-700 font-bold hover:underline text-sm">ليس لديك حساب؟ طلب اشتراك جديد</button>
+                    </div>
+                </form>
+
+                <form id="form-register" onsubmit="handleRegisterRequest(event)" class="p-6 space-y-5 hidden">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-2 flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4"></i> الاسم الثلاثي مع القبيلة
+                        </label>
+                        <input type="text" id="reg-name" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-right" placeholder="مثال: أحمد بن محمد الرواحي">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-2 flex items-center gap-2">
+                            <i data-lucide="phone" class="w-4 h-4"></i> رقم الهاتف
+                        </label>
+                        <input type="text" id="reg-phone" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-left" dir="ltr" placeholder="9XXXXXXX">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                        <i data-lucide="send" class="w-5 h-5"></i> إرسال طلب التسجيل
+                    </button>
+                    <div class="text-center mt-4">
+                        <p class="text-slate-500 text-sm">
+                            لديك حساب بالفعل؟ <button type="button" onclick="switchAuthMode('login')" class="text-amber-700 font-bold hover:underline">تسجيل الدخول</button>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- واجهة المزايدة -->
+        <div id="view-auction" class="hidden container mx-auto px-4 py-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-8 flex flex-col md:flex-row gap-6 items-center justify-between">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="info" class="w-6 h-6 text-blue-500 shrink-0 mt-1"></i>
+                    <div>
+                        <h3 class="font-bold text-slate-800">نظام المزايدة:</h3>
+                        <p class="text-slate-600 text-sm mt-1">
+                            يبدأ المزاد لكل فترة زمنية من <strong class="text-emerald-700">3.000 ر.ع</strong>. كل ضغطة تزيد السعر بمقدار <strong class="text-amber-600">200 بيسة</strong>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div id="auction-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </div>
+
+        <!-- واجهة لوحة الإدارة -->
+        <div id="view-dashboard" class="hidden container mx-auto px-4 py-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="bg-blue-100 p-4 rounded-full"><i data-lucide="clock" class="w-8 h-8 text-blue-600"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-sm font-bold">ساعات الوقف (الإدارة)</p>
+                        <h3 class="text-3xl font-bold text-slate-800"><span id="stat-hours">24</span> <span class="text-sm font-normal text-slate-500">ساعة</span></h3>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="bg-emerald-100 p-4 rounded-full"><i data-lucide="calculator" class="w-8 h-8 text-emerald-600"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-sm font-bold">المبلغ الإجمالي للتأجير</p>
+                        <h3 class="text-3xl font-bold text-emerald-700"><span id="stat-total">0.000</span> <span class="text-sm font-normal text-slate-500">ر.ع</span></h3>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="bg-amber-100 p-4 rounded-full"><i data-lucide="trending-up" class="w-8 h-8 text-amber-600"></i></div>
+                    <div>
+                        <p class="text-slate-500 text-sm font-bold">المبلغ الإجمالي (التركي)</p>
+                        <h3 class="text-3xl font-bold text-amber-700"><span id="stat-turki">0.000</span> <span class="text-sm font-normal text-slate-500">ر.ع</span></h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-amber-600 px-6 py-4 flex items-center justify-between text-white">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                                <h3 class="font-bold">طلبات الاشتراك (<span id="pending-count">0</span>)</h3>
+                            </div>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto" id="pending-list-container"></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-800 px-6 py-4 flex items-center gap-2 text-white">
+                            <i data-lucide="user" class="w-5 h-5 text-slate-200"></i>
+                            <h3 class="font-bold">إضافة مشترك يدوياً</h3>
+                        </div>
+                        <form onsubmit="handleAddSubscriber(event)" class="p-5 space-y-4">
+                            <div>
+                                <label class="block text-slate-700 text-sm font-bold mb-2">اسم المشترك</label>
+                                <input type="text" id="add-sub-name" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-1 focus:ring-slate-500 outline-none" placeholder="الاسم الثلاثي">
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 text-sm font-bold mb-2">رقم الهاتف (واتساب)</label>
+                                <input type="tel" id="add-sub-phone" required dir="ltr" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-slate-500 focus:ring-1 focus:ring-slate-500 outline-none text-left" placeholder="9XXXXXXX">
+                            </div>
+                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg transition-colors">
+                                توليد رقم سري وحفظ
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-50 px-6 py-3 border-b border-slate-200">
+                            <h3 class="font-bold text-slate-800 text-sm">قائمة المشتركين (<span id="users-count">0</span>)</h3>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto" id="users-list-container"></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden self-start">
+                    <div class="bg-amber-50 px-6 py-4 border-b border-amber-200 flex items-center gap-2">
+                        <i data-lucide="gavel" class="w-5 h-5 text-amber-700"></i>
+                        <h3 class="font-bold text-amber-900">متابعة فترات المزايدة الحية</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead class="bg-slate-50 text-slate-600 text-sm border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-4">الفترة الزمنية</th>
+                                    <th class="px-6 py-4">أعلى مزايد</th>
+                                    <th class="px-6 py-4">المزايدات</th>
+                                    <th class="px-6 py-4">السعر الواصل</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- النوافذ المنبثقة -->
+    <div id="modal-error" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden transform transition-all">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="info" class="w-8 h-8 text-red-600"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg mb-2">تنبيه</h3>
+                <p id="error-message" class="text-slate-600 mb-6"></p>
+                <button onclick="closeModal('error')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl transition-colors">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-success" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden transform transition-all">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-8 h-8 text-emerald-600"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg mb-2">نجاح</h3>
+                <p id="success-message" class="text-slate-600 mb-6"></p>
+                <button onclick="closeModal('success')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-colors">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- تهيئة Firebase والمنطق البرمجي -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // إعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLxMMT9pGh1b2FJcfZ9Guf5OqU0eA18w0",
+            authDomain: "aoqaf-23484.firebaseapp.com",
+            projectId: "aoqaf-23484",
+            storageBucket: "aoqaf-23484.firebasestorage.app",
+            messagingSenderId: "116710495148",
+            appId: "1:116710495148:web:d1f12439aaf934acb2e009",
+            measurementId: "G-CP71DYKRP7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // مسارات قاعدة البيانات الخاصة بالفلك
+        const falajAppId = "aoqaf-23484";
+        const getCol = (colName) => collection(db, 'artifacts', falajAppId, 'public', 'data', colName);
+        const getDocRef = (colName, id) => doc(db, 'artifacts', falajAppId, 'public', 'data', colName, id.toString());
+
+        let fbUser = null;
+
+        // الثوابت وحالة التطبيق
+        const STARTING_BID = 3.000;
+        const BID_INCREMENT = 0.200;
+        const ADMIN_CREDENTIALS = { phone: 'admin', pin: 'admin' };
+
+        const state = {
+            currentView: 'login',
+            loginTab: 'user',
+            userAuthMode: 'login',
+            currentUser: null,
+            users: [],
+            pendingRequests: [],
+            slots: []
+        };
+
+        // تفعيل أيقونات Lucide
+        lucide.createIcons();
+
+        // ------------------ تهيئة قاعدة البيانات ------------------ //
+        async function initFirebase() {
+            try {
+                // تسجيل الدخول المجهول لتمكين القراءة والكتابة
+                const userCred = await signInAnonymously(auth);
+                fbUser = userCred.user;
+                setupRealtimeListeners();
+            } catch (error) {
+                console.error("Firebase Auth Error:", error);
+                window.showModal('error', 'حدث خطأ أثناء الاتصال بقاعدة البيانات.');
+            }
+        }
+        initFirebase();
+
+        let isSlotsInitialized = false;
+        function setupRealtimeListeners() {
+            if (!fbUser) return;
+
+            // مراقبة الفترات الزمنية للمزايدة (Real-time)
+            onSnapshot(getCol('slots'), (snapshot) => {
+                if (snapshot.empty && !isSlotsInitialized) {
+                    isSlotsInitialized = true;
+                    // إضافة الفترات الافتراضية إذا كانت فارغة
+                    const defaultSlots = [
+                        { id: 1, label: '08:00 صباحاً - 11:00 صباحاً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 2, label: '11:00 صباحاً - 02:00 ظهراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 3, label: '02:00 ظهراً - 05:00 عصراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 4, label: '05:00 عصراً - 08:00 مساءً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 5, label: '08:00 مساءً - 11:00 مساءً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 6, label: '11:00 مساءً - 02:00 فجراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 7, label: '02:00 فجراً - 05:00 فجراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 8, label: '05:00 فجراً - 08:00 صباحاً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 }
+                    ];
+                    defaultSlots.forEach(s => setDoc(getDocRef('slots', s.id), s));
+                } else {
+                    state.slots = [];
+                    snapshot.forEach(doc => state.slots.push(doc.data()));
+                    state.slots.sort((a,b) => a.id - b.id); // الترتيب بالزمن
+                    if(state.currentView === 'auction') renderAuctionGrid();
+                    if(state.currentView === 'dashboard') renderDashboard();
+                }
+            }, (error) => console.error(error));
+
+            // مراقبة المشتركين
+            onSnapshot(getCol('users'), (snapshot) => {
+                state.users = [];
+                snapshot.forEach(doc => state.users.push({ id: doc.id, ...doc.data() }));
+                if(state.currentView === 'dashboard') renderDashboard();
+            });
+
+            // مراقبة طلبات الاشتراك المعلقة
+            onSnapshot(getCol('pendingRequests'), (snapshot) => {
+                state.pendingRequests = [];
+                snapshot.forEach(doc => state.pendingRequests.push({ id: doc.id, ...doc.data() }));
+                if(state.currentView === 'dashboard') renderDashboard();
+            });
+        }
+
+        // ------------------ دوال الواجهة (مرفوعة على نافذة المتصفح لتعمل في HTML) ------------------ //
+
+        window.switchView = function(viewName) {
+            state.currentView = viewName;
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-auction').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            updateHeader();
+            if(viewName === 'auction') renderAuctionGrid();
+            if(viewName === 'dashboard') renderDashboard();
+        }
+
+        window.switchLoginTab = function(tabName) {
+            state.loginTab = tabName;
+            state.userAuthMode = 'login';
+            
+            const tabUser = document.getElementById('tab-user');
+            const tabAdmin = document.getElementById('tab-admin');
+            const headerBg = document.getElementById('login-header-bg');
+            const headerIcon = document.getElementById('login-header-icon');
+            const headerTitle = document.getElementById('login-header-title');
+            const headerDesc = document.getElementById('login-header-desc');
+            const btnSubmit = document.getElementById('btn-login-submit');
+            const userFooter = document.getElementById('login-user-footer');
+            const phoneInput = document.getElementById('login-phone');
+
+            if(tabName === 'user') {
+                tabUser.className = 'flex-1 py-4 font-bold transition-colors bg-amber-900 text-white';
+                tabAdmin.className = 'flex-1 py-4 font-bold transition-colors text-slate-600 hover:bg-slate-200';
+                headerBg.className = 'px-6 py-6 text-center bg-amber-900/5';
+                headerIcon.setAttribute('data-lucide', 'droplets');
+                headerIcon.setAttribute('class', 'w-12 h-12 mx-auto mb-3 text-amber-600');
+                headerTitle.textContent = 'تسجيل الدخول للمزايدة';
+                headerTitle.className = 'text-2xl font-bold font-arabic text-amber-900';
+                headerDesc.textContent = 'أدخل بيانات الدخول للمتابعة';
+                btnSubmit.className = 'w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors';
+                userFooter.classList.remove('hidden');
+                phoneInput.placeholder = '9XXXXXXX';
+            } else {
+                tabAdmin.className = 'flex-1 py-4 font-bold transition-colors bg-slate-800 text-white';
+                tabUser.className = 'flex-1 py-4 font-bold transition-colors text-slate-600 hover:bg-slate-200';
+                headerBg.className = 'px-6 py-6 text-center bg-slate-800/5';
+                headerIcon.setAttribute('data-lucide', 'droplets');
+                headerIcon.setAttribute('class', 'w-12 h-12 mx-auto mb-3 text-slate-700');
+                headerTitle.textContent = 'لوحة تحكم الإدارة';
+                headerTitle.className = 'text-2xl font-bold font-arabic text-slate-800';
+                headerDesc.textContent = 'أدخل بيانات الدخول للمتابعة';
+                btnSubmit.className = 'w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors';
+                userFooter.classList.add('hidden');
+                phoneInput.placeholder = '';
+            }
+
+            document.getElementById('form-register').classList.add('hidden');
+            document.getElementById('form-login').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        window.switchAuthMode = function(mode) {
+            state.userAuthMode = mode;
+            const title = document.getElementById('login-header-title');
+            const desc = document.getElementById('login-header-desc');
+
+            if (mode === 'register') {
+                title.textContent = 'طلب اشتراك جديد';
+                desc.textContent = 'أدخل بياناتك لإرسال طلب تسجيل للإدارة';
+                document.getElementById('form-login').classList.add('hidden');
+                document.getElementById('form-register').classList.remove('hidden');
+            } else {
+                title.textContent = 'تسجيل الدخول للمزايدة';
+                desc.textContent = 'أدخل بيانات الدخول للمتابعة';
+                document.getElementById('form-register').classList.add('hidden');
+                document.getElementById('form-login').classList.remove('hidden');
+            }
+        }
+
+        function updateHeader() {
+            const header = document.getElementById('main-header');
+            const navButtons = document.getElementById('nav-buttons');
+            const adminNav = document.getElementById('admin-nav');
+            const headerIcon = document.getElementById('header-icon');
+            const headerSubtitle = document.getElementById('header-subtitle');
+            const userBadge = document.getElementById('user-badge');
+            const userBadgeIcon = document.getElementById('user-badge-icon');
+            
+            if (state.currentUser) {
+                navButtons.classList.remove('hidden');
+                document.getElementById('current-user-name').textContent = state.currentUser.name;
+
+                if (state.currentUser.role === 'admin') {
+                    header.className = 'bg-slate-900 text-white shadow-lg sticky top-0 z-40 transition-colors';
+                    headerIcon.setAttribute('class', 'w-10 h-10 text-slate-300');
+                    headerSubtitle.className = 'text-sm flex items-center gap-1 mt-1 text-slate-400';
+                    adminNav.classList.remove('hidden');
+                    
+                    userBadge.className = 'px-4 py-2 rounded-full border flex items-center gap-2 whitespace-nowrap bg-slate-800 border-slate-700';
+                    userBadgeIcon.setAttribute('class', 'w-4 h-4 text-slate-300');
+                    
+                    document.getElementById('btn-nav-dashboard').className = state.currentView === 'dashboard' 
+                        ? 'px-4 py-2 rounded-full font-bold transition-colors flex items-center gap-2 whitespace-nowrap bg-slate-700 text-white' 
+                        : 'px-4 py-2 rounded-full font-bold transition-colors flex items-center gap-2 whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700';
+                    
+                    document.getElementById('btn-nav-auction').className = state.currentView === 'auction' 
+                        ? 'px-4 py-2 rounded-full font-bold transition-colors flex items-center gap-2 whitespace-nowrap bg-slate-700 text-white' 
+                        : 'px-4 py-2 rounded-full font-bold transition-colors flex items-center gap-2 whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700';
+                } else {
+                    header.className = 'bg-amber-900 text-white shadow-lg sticky top-0 z-40 transition-colors';
+                    headerIcon.setAttribute('class', 'w-10 h-10 text-cyan-300');
+                    headerSubtitle.className = 'text-sm flex items-center gap-1 mt-1 text-amber-200';
+                    adminNav.classList.add('hidden');
+
+                    userBadge.className = 'px-4 py-2 rounded-full border flex items-center gap-2 whitespace-nowrap bg-emerald-800/60 border-emerald-700';
+                    userBadgeIcon.setAttribute('class', 'w-4 h-4 text-emerald-300');
+                }
+            } else {
+                navButtons.classList.add('hidden');
+                header.className = 'bg-amber-900 text-white shadow-lg sticky top-0 z-40 transition-colors';
+                headerIcon.setAttribute('class', 'w-10 h-10 text-cyan-300');
+                headerSubtitle.className = 'text-sm flex items-center gap-1 mt-1 text-amber-200';
+            }
+        }
+
+        window.showModal = function(type, message) {
+            document.getElementById(`${type}-message`).textContent = message;
+            document.getElementById(`modal-${type}`).classList.remove('hidden');
+        }
+
+        window.closeModal = function(type) {
+            document.getElementById(`modal-${type}`).classList.add('hidden');
+        }
+
+        // ------------------ دوال الأعمال والمزامنة ------------------ //
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const phone = document.getElementById('login-phone').value;
+            const pin = document.getElementById('login-pin').value;
+
+            if (state.loginTab === 'admin') {
+                if (phone.trim().toLowerCase() === ADMIN_CREDENTIALS.phone && pin.trim() === ADMIN_CREDENTIALS.pin) {
+                    state.currentUser = { role: 'admin', name: 'إدارة الفلج' };
+                    document.getElementById('login-phone').value = '';
+                    document.getElementById('login-pin').value = '';
+                    window.switchView('dashboard');
+                } else {
+                    window.showModal('error', 'بيانات الإدارة غير صحيحة!');
+                }
+                return;
+            }
+
+            const user = state.users.find(u => u.phone === phone && u.pin === pin);
+            if (user) {
+                state.currentUser = { ...user, role: 'user' };
+                document.getElementById('login-phone').value = '';
+                document.getElementById('login-pin').value = '';
+                window.switchView('auction');
+            } else {
+                window.showModal('error', 'رقم الهاتف أو الرقم السري غير صحيح. يرجى التواصل مع الإدارة إذا لم تكن مشتركاً.');
+            }
+        }
+
+        window.handleLogout = function() {
+            state.currentUser = null;
+            window.switchView('login');
+        }
+
+        window.handleRegisterRequest = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const phone = document.getElementById('reg-phone').value;
+
+            if (!name.trim() || !phone.trim()) {
+                window.showModal('error', 'يرجى تعبئة جميع الحقول');
+                return;
+            }
+
+            if (state.users.find(u => u.phone === phone) || state.pendingRequests.find(r => r.phone === phone)) {
+                window.showModal('error', 'رقم الهاتف مسجل أو قيد المراجعة بالفعل!');
+                return;
+            }
+
+            if (!fbUser) return;
+            const reqId = Date.now().toString();
+            await setDoc(getDocRef('pendingRequests', reqId), { name, phone });
+
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-phone').value = '';
+            
+            window.switchAuthMode('login');
+            window.showModal('success', 'تم إرسال طلبك للإدارة. يرجى التواصل مع إدارة الفلج للحصول على الرقم السري.');
+        }
+
+        window.handleAddSubscriber = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('add-sub-name').value;
+            const phone = document.getElementById('add-sub-phone').value;
+
+            if (!name.trim() || !phone.trim()) {
+                window.showModal('error', 'يرجى تعبئة اسم المشترك ورقم هاتفه');
+                return;
+            }
+            if (state.users.find(u => u.phone === phone)) {
+                window.showModal('error', 'رقم الهاتف مسجل مسبقاً لمشترك آخر!');
+                return;
+            }
+
+            if (!fbUser) return;
+            const generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
+            const userId = Date.now().toString();
+            await setDoc(getDocRef('users', userId), { name, phone, pin: generatedPin });
+            
+            document.getElementById('add-sub-name').value = '';
+            document.getElementById('add-sub-phone').value = '';
+        }
+
+        window.acceptRequest = async function(reqId) {
+            const request = state.pendingRequests.find(r => r.id === reqId.toString());
+            if (request && fbUser) {
+                const generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
+                const userId = Date.now().toString();
+                
+                await setDoc(getDocRef('users', userId), { name: request.name, phone: request.phone, pin: generatedPin });
+                await deleteDoc(getDocRef('pendingRequests', reqId.toString()));
+                
+                window.showModal('success', `تم قبول العرض للمشترك ${request.name} وتوليد الرقم السري بنجاح.`);
+            }
+        }
+
+        window.rejectRequest = async function(reqId) {
+            if (fbUser) {
+                await deleteDoc(getDocRef('pendingRequests', reqId.toString()));
+            }
+        }
+
+        window.executeBid = async function(slotId) {
+            if (!state.currentUser || state.currentUser.role !== 'user') {
+                window.showModal('error', 'غير مصرح لك بالمزايدة. المزايدة متاحة للمشتركين فقط.');
+                return;
+            }
+            if (!fbUser) return;
+            
+            const slot = state.slots.find(s => s.id === slotId);
+            if (slot) {
+                const newBid = slot.currentBid + BID_INCREMENT;
+                // سيتم تحديث الواجهة تلقائياً بواسطة onSnapshot
+                await updateDoc(getDocRef('slots', slotId), {
+                    currentBid: newBid,
+                    highestBidder: state.currentUser.name,
+                    bidsCount: slot.bidsCount + 1
+                });
+            }
+        }
+
+        window.sendWhatsApp = function(userIndex) {
+            const user = state.users[userIndex];
+            if (!user) return;
+
+            let formattedPhone = user.phone;
+            if (formattedPhone.length === 8) {
+                formattedPhone = '968' + formattedPhone;
+            }
+            const message = `مرحباً ${user.name}،\nتم تسجيلك بنجاح في نظام مزايدة فلج السيب.\n\nبيانات الدخول الخاصة بك:\nرقم الهاتف: ${user.phone}\nالرقم السري (PIN): ${user.pin}\n\nيرجى الدخول للموقع لبدء المزايدة.`;
+            window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        // ------------------ دوال العرض ------------------ //
+
+        function renderAuctionGrid() {
+            const grid = document.getElementById('auction-grid');
+            grid.innerHTML = state.slots.map(slot => `
+                <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-100 overflow-hidden relative group">
+                    <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                        <div class="flex items-center gap-2 text-slate-700 font-bold">
+                            <i data-lucide="clock" class="w-5 h-5 text-slate-500"></i>
+                            <span class="text-sm">${slot.label}</span>
+                        </div>
+                    </div>
+                    <div class="p-5 flex flex-col items-center">
+                        <span class="text-slate-500 text-sm mb-1">أعلى سعر حالي</span>
+                        <div class="text-3xl font-bold text-emerald-600 mb-4 flex items-center gap-1">
+                            ${slot.currentBid.toFixed(3)}
+                            <span class="text-sm text-emerald-800">ر.ع</span>
+                        </div>
+                        <div class="w-full bg-slate-50 rounded-lg p-3 mb-4 min-h-[70px] flex flex-col justify-center items-center text-center border border-slate-100">
+                            ${slot.highestBidder ? `
+                                <span class="text-xs text-slate-500 mb-1 flex items-center gap-1">
+                                    <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500"></i> باسم
+                                </span>
+                                <span class="font-bold text-slate-800 truncate w-full" title="${slot.highestBidder}">${slot.highestBidder}</span>
+                            ` : `
+                                <span class="text-slate-400 text-sm italic">لا توجد مزايدات حتى الآن</span>
+                            `}
+                        </div>
+                        <button onclick="executeBid(${slot.id})" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-sm">
+                            <i data-lucide="gavel" class="w-5 h-5"></i>
+                            <span>زايد الآن (+200 بيسة)</span>
+                        </button>
+                        ${slot.bidsCount > 0 ? `
+                            <div class="mt-3 text-xs text-slate-400 flex items-center gap-1">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i> تمت المزايدة ${slot.bidsCount} مرات
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderDashboard() {
+            const totalLeaseAmount = state.slots.reduce((sum, slot) => sum + slot.currentBid, 0);
+            
+            document.getElementById('stat-total').textContent = totalLeaseAmount.toFixed(3);
+            document.getElementById('stat-turki').textContent = totalLeaseAmount.toFixed(3);
+            
+            document.getElementById('pending-count').textContent = state.pendingRequests.length;
+            const pendingContainer = document.getElementById('pending-list-container');
+            if(state.pendingRequests.length === 0) {
+                pendingContainer.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">لا توجد طلبات جديدة</p>';
+            } else {
+                pendingContainer.innerHTML = `<ul class="divide-y divide-slate-100">` + 
+                    state.pendingRequests.map(req => `
+                    <li class="p-4 hover:bg-slate-50">
+                        <div class="mb-3">
+                            <span class="font-bold text-slate-800 text-sm block">${req.name}</span>
+                            <span class="text-slate-500 text-xs" dir="ltr">${req.phone}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="acceptRequest(${req.id})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs py-2 rounded flex items-center justify-center gap-1 transition-colors">
+                                <i data-lucide="check" class="w-4 h-4"></i> قبول العرض
+                            </button>
+                            <button onclick="rejectRequest(${req.id})" class="px-3 bg-red-100 hover:bg-red-200 text-red-600 text-xs py-2 rounded transition-colors" title="رفض">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </li>
+                `).join('') + `</ul>`;
+            }
+
+            document.getElementById('users-count').textContent = state.users.length;
+            const usersContainer = document.getElementById('users-list-container');
+            if(state.users.length === 0) {
+                usersContainer.innerHTML = '<p class="text-slate-400 text-sm text-center py-6">لا يوجد مشتركين مسجلين بعد</p>';
+            } else {
+                usersContainer.innerHTML = `<ul class="divide-y divide-slate-100">` + 
+                    state.users.map((user, idx) => `
+                    <li class="p-4 hover:bg-slate-50">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-slate-800 text-sm">${user.name}</span>
+                            <span class="bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs font-mono tracking-widest">${user.pin}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 text-xs" dir="ltr">${user.phone}</span>
+                            <button onclick="sendWhatsApp(${idx})" class="text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded flex items-center gap-1 transition-colors">
+                                <i data-lucide="send" class="w-3 h-3"></i> إرسال واتساب
+                            </button>
+                        </div>
+                    </li>
+                `).join('') + `</ul>`;
+            }
+
+            const tbody = document.getElementById('dashboard-table-body');
+            tbody.innerHTML = state.slots.map(slot => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-slate-800">${slot.label}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">
+                        ${slot.highestBidder 
+                            ? `<span class="flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> ${slot.highestBidder}</span>` 
+                            : '<span class="text-slate-400 italic">لا يوجد</span>'}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${slot.bidsCount}</td>
+                    <td class="px-6 py-4 font-bold text-emerald-600">${slot.currentBid.toFixed(3)} ر.ع</td>
+                </tr>
+            `).join('');
+
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

@@ -19,6 +19,18 @@
             font-family: 'Tajawal', sans-serif;
         }
         .hidden { display: none !important; }
+        
+        /* تنسيق خاص للطباعة فقط */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; direction: rtl; font-family: sans-serif; padding: 20px;}
+            table { width: 100%; border-collapse: collapse; margin-top: 20px;}
+            th, td { border: 1px solid #000; padding: 10px; text-align: right; }
+            th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; }
+            .print-header { text-align: center; margin-bottom: 20px; }
+            .print-total { font-size: 1.5em; font-weight: bold; margin-top: 20px; }
+        }
     </style>
 </head>
 <body class="text-right text-slate-800">
@@ -79,16 +91,16 @@
                 
                 <form id="form-login" onsubmit="handleLogin(event)" class="p-6 space-y-5">
                     <div>
-                        <label class="block text-slate-700 font-bold mb-2 flex items-center gap-2">
+                        <label id="label-login-phone" class="block text-slate-700 font-bold mb-2 flex items-center gap-2">
                             <i data-lucide="phone" class="w-4 h-4"></i> رقم الهاتف
                         </label>
-                        <input type="text" id="login-phone" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-left" dir="ltr" placeholder="9XXXXXXX">
+                        <input type="tel" id="login-phone" required autocomplete="off" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-left" dir="ltr" placeholder="9XXXXXXX">
                     </div>
                     <div>
-                        <label class="block text-slate-700 font-bold mb-2 flex items-center gap-2">
+                        <label id="label-login-pin" class="block text-slate-700 font-bold mb-2 flex items-center gap-2">
                             <i data-lucide="lock" class="w-4 h-4"></i> الرقم السري (PIN)
                         </label>
-                        <input type="password" id="login-pin" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-left" dir="ltr" placeholder="****">
+                        <input type="password" id="login-pin" required autocomplete="off" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all text-left" dir="ltr" placeholder="****">
                     </div>
                     <button type="submit" id="btn-login-submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
                         <i data-lucide="log-in" class="w-5 h-5"></i> تسجيل الدخول
@@ -127,6 +139,12 @@
 
         <!-- واجهة المزايدة -->
         <div id="view-auction" class="hidden container mx-auto px-4 py-6">
+            
+            <!-- شريط حالة المزاد للمشتركين -->
+            <div id="auction-status-banner" class="rounded-xl p-4 mb-6 flex items-center justify-center gap-3 font-bold text-lg shadow-sm border">
+                <!-- يُولد برمجياً -->
+            </div>
+
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-8 flex flex-col md:flex-row gap-6 items-center justify-between">
                 <div class="flex items-start gap-3">
                     <i data-lucide="info" class="w-6 h-6 text-blue-500 shrink-0 mt-1"></i>
@@ -138,11 +156,79 @@
                     </div>
                 </div>
             </div>
+            
             <div id="auction-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </div>
 
         <!-- واجهة لوحة الإدارة -->
         <div id="view-dashboard" class="hidden container mx-auto px-4 py-6">
+            
+            <!-- إعدادات وقت وحالة المزاد -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="bg-indigo-700 px-6 py-4 flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex items-center gap-2 text-white">
+                        <i data-lucide="calendar-clock" class="w-6 h-6 text-indigo-200"></i>
+                        <h3 class="text-lg font-bold">إدارة وحالة المزاد</h3>
+                    </div>
+                    <div id="admin-auction-status-badge" class="px-4 py-1 rounded-full text-sm font-bold bg-white text-indigo-700">
+                        حالة المزاد
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex flex-col gap-5">
+                        <div class="flex flex-col md:flex-row gap-4 items-center bg-slate-50 p-5 rounded-xl border border-slate-200">
+                            <div class="w-full md:w-1/2">
+                                <label class="block text-slate-700 text-sm font-bold mb-2"><i data-lucide="calendar" class="w-4 h-4 inline align-text-bottom text-indigo-600"></i> مدة المزاد (يغلق بعد):</label>
+                                <select id="admin-auction-days" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-indigo-500 outline-none text-center font-bold text-lg bg-white cursor-pointer shadow-sm">
+                                    <option value="1">يوم واحد</option>
+                                    <option value="2">يومان</option>
+                                    <option value="3">3 أيام</option>
+                                    <option value="4">4 أيام</option>
+                                    <option value="5">5 أيام</option>
+                                    <option value="6">6 أيام</option>
+                                    <option value="7" selected>أسبوع واحد (7 أيام)</option>
+                                    <option value="10">10 أيام</option>
+                                    <option value="14">أسبوعان (14 يوم)</option>
+                                </select>
+                            </div>
+                            <div class="w-full md:w-1/2">
+                                <label class="block text-slate-700 text-sm font-bold mb-2"><i data-lucide="clock" class="w-4 h-4 inline align-text-bottom text-indigo-600"></i> وقت الإغلاق (الساعة):</label>
+                                <input type="time" id="admin-auction-time" value="20:00" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-indigo-500 outline-none text-center font-bold text-lg bg-white cursor-pointer shadow-sm">
+                            </div>
+                        </div>
+                        <div class="flex gap-3 w-full">
+                            <button onclick="saveAuctionSettings(true)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 text-lg shadow-md">
+                                <i data-lucide="play-circle" class="w-6 h-6"></i> بدء المزاد
+                            </button>
+                            <button onclick="saveAuctionSettings(false)" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 text-lg">
+                                <i data-lucide="lock" class="w-6 h-6"></i> إغلاق يدوياً
+                            </button>
+                        </div>
+                        <div id="calculated-end-time-display" class="text-base font-bold text-slate-500 text-center bg-slate-100 py-3 rounded-lg">
+                            المزاد متوقف حالياً.
+                        </div>
+                    </div>
+                    
+                    <hr class="my-6 border-slate-200">
+                    
+                    <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div>
+                            <h4 class="font-bold text-slate-800">أدوات نهاية المزاد</h4>
+                            <p class="text-sm text-slate-500">استخرج النتائج أو ابدأ أسبوعاً جديداً بعد الإغلاق.</p>
+                        </div>
+                        <div class="flex gap-3 w-full md:w-auto">
+                            <button onclick="printReportWindow()" class="flex-1 md:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i data-lucide="printer" class="w-5 h-5"></i> طباعة تقرير النتائج
+                            </button>
+                            <button onclick="promptResetAuction()" class="flex-1 md:flex-none bg-red-100 hover:bg-red-200 text-red-700 font-bold py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-5 h-5"></i> بدء مزاد أسبوع جديد
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقات الإحصائيات -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-4">
                     <div class="bg-blue-100 p-4 rounded-full"><i data-lucide="clock" class="w-8 h-8 text-blue-600"></i></div>
@@ -168,6 +254,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- القائمة الجانبية: المشتركين -->
                 <div class="lg:col-span-1 space-y-6">
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         <div class="bg-amber-600 px-6 py-4 flex items-center justify-between text-white">
@@ -207,9 +294,10 @@
                     </div>
                 </div>
 
+                <!-- جدول المزايدة في الإدارة -->
                 <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden self-start">
                     <div class="bg-amber-50 px-6 py-4 border-b border-amber-200 flex items-center gap-2">
-                        <i data-lucide="gavel" class="w-5 h-5 text-amber-700"></i>
+                        <i data-lucide="list-ordered" class="w-5 h-5 text-amber-700"></i>
                         <h3 class="font-bold text-amber-900">متابعة فترات المزايدة الحية</h3>
                     </div>
                     <div class="overflow-x-auto">
@@ -257,17 +345,17 @@
         </div>
     </div>
 
-    <!-- نافذة تأكيد الحذف -->
+    <!-- نافذة تأكيد عامة (مستخدمة للحذف والتصفير) -->
     <div id="modal-confirm" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden transform transition-all">
             <div class="p-6 text-center">
                 <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600"></i>
                 </div>
-                <h3 class="font-bold text-slate-800 text-lg mb-2">تأكيد الحذف</h3>
+                <h3 id="confirm-title" class="font-bold text-slate-800 text-lg mb-2">تأكيد الإجراء</h3>
                 <p id="confirm-message" class="text-slate-600 mb-6"></p>
                 <div class="flex gap-3">
-                    <button onclick="confirmDeleteUser()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors">حذف نهائي</button>
+                    <button id="confirm-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors">تأكيد</button>
                     <button onclick="closeModal('confirm')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 rounded-xl transition-colors">إلغاء</button>
                 </div>
             </div>
@@ -281,7 +369,6 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyAffSkbM4yXDON0ASVwRCr165_Gu_yGPF4",
             authDomain: "aldhahir-stadium.firebaseapp.com",
@@ -297,14 +384,12 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // مسارات قاعدة البيانات الخاصة بالفلك
         const falajAppId = "aldhahir-stadium";
         const getCol = (colName) => collection(db, 'artifacts', falajAppId, 'public', 'data', colName);
         const getDocRef = (colName, id) => doc(db, 'artifacts', falajAppId, 'public', 'data', colName, id.toString());
 
         let fbUser = null;
 
-        // الثوابت وحالة التطبيق
         const STARTING_BID = 3.000;
         const BID_INCREMENT = 0.200;
         const ADMIN_CREDENTIALS = { phone: 'admin', pin: 'admin' };
@@ -316,16 +401,15 @@
             currentUser: null,
             users: [],
             pendingRequests: [],
-            slots: []
+            slots: [],
+            settings: { isOpen: false, endTime: '' }
         };
 
-        // تفعيل أيقونات Lucide
         lucide.createIcons();
 
         // ------------------ تهيئة قاعدة البيانات ------------------ //
         async function initFirebase() {
             try {
-                // تسجيل الدخول المجهول لتمكين القراءة والكتابة
                 const userCred = await signInAnonymously(auth);
                 fbUser = userCred.user;
                 setupRealtimeListeners();
@@ -340,11 +424,22 @@
         function setupRealtimeListeners() {
             if (!fbUser) return;
 
-            // مراقبة الفترات الزمنية للمزايدة (Real-time)
+            // إعدادات المزاد العامة (الوقت وحالة الفتح/الإغلاق)
+            onSnapshot(getDocRef('settings', 'main'), (docSnap) => {
+                if (docSnap.exists()) {
+                    state.settings = docSnap.data();
+                } else {
+                    state.settings = { isOpen: false, endTime: '' };
+                    setDoc(getDocRef('settings', 'main'), state.settings);
+                }
+                updateUIForAuctionState();
+                if(state.currentView === 'dashboard') renderDashboard();
+            });
+
             onSnapshot(getCol('slots'), (snapshot) => {
                 if (snapshot.empty && !isSlotsInitialized) {
                     isSlotsInitialized = true;
-                    // إضافة الفترات الافتراضية إذا كانت فارغة
+                    // فترات المزاد تبدأ 8 مساء حتى 8 مساء
                     const defaultSlots = [
                         { id: 1, label: '08:00 مساءً - 11:00 مساءً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
                         { id: 2, label: '11:00 مساءً - 02:00 فجراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
@@ -359,20 +454,18 @@
                 } else {
                     state.slots = [];
                     snapshot.forEach(doc => state.slots.push(doc.data()));
-                    state.slots.sort((a,b) => a.id - b.id); // الترتيب بالزمن
+                    state.slots.sort((a,b) => a.id - b.id);
                     if(state.currentView === 'auction') renderAuctionGrid();
                     if(state.currentView === 'dashboard') renderDashboard();
                 }
             }, (error) => console.error(error));
 
-            // مراقبة المشتركين
             onSnapshot(getCol('users'), (snapshot) => {
                 state.users = [];
                 snapshot.forEach(doc => state.users.push({ id: doc.id, ...doc.data() }));
                 if(state.currentView === 'dashboard') renderDashboard();
             });
 
-            // مراقبة طلبات الاشتراك المعلقة
             onSnapshot(getCol('pendingRequests'), (snapshot) => {
                 state.pendingRequests = [];
                 snapshot.forEach(doc => state.pendingRequests.push({ id: doc.id, ...doc.data() }));
@@ -380,7 +473,186 @@
             });
         }
 
-        // ------------------ دوال الواجهة (مرفوعة على نافذة المتصفح لتعمل في HTML) ------------------ //
+        // تحديث حالة النظام بناءً على الوقت المتبقي
+        function checkAuctionTimeStatus() {
+            if(!state.settings) return false;
+            if(!state.settings.isOpen) return false;
+            
+            if (state.settings.endTime) {
+                const now = new Date().getTime();
+                const end = new Date(state.settings.endTime).getTime();
+                if (now >= end) return false; // الوقت انتهى
+            }
+            return true;
+        }
+
+        function updateUIForAuctionState() {
+            const isAuctionActive = checkAuctionTimeStatus();
+            
+            // تحديث شريط حالة المزاد في صفحة المستخدم
+            if (state.currentView === 'auction') {
+                const banner = document.getElementById('auction-status-banner');
+                if (isAuctionActive) {
+                    const endDateStr = state.settings.endTime ? new Date(state.settings.endTime).toLocaleString('ar-OM') : 'غير محدد';
+                    banner.className = "rounded-xl p-4 mb-6 flex items-center justify-center gap-3 font-bold text-lg shadow-sm border bg-emerald-50 border-emerald-200 text-emerald-800";
+                    banner.innerHTML = `<i data-lucide="clock" class="w-6 h-6"></i> المزاد مفتوح وينتهي في: <span class="font-black" dir="ltr">${endDateStr}</span>`;
+                } else {
+                    banner.className = "rounded-xl p-4 mb-6 flex items-center justify-center gap-3 font-bold text-lg shadow-sm border bg-red-50 border-red-200 text-red-800";
+                    banner.innerHTML = `<i data-lucide="lock" class="w-6 h-6"></i> المزاد مغلق حالياً`;
+                }
+                renderAuctionGrid(); // إعادة رسم الأزرار بناءً على الحالة الجديدة
+            }
+
+            // تحديث حالة المزاد في لوحة الإدارة
+            if (state.currentView === 'dashboard') {
+                const badge = document.getElementById('admin-auction-status-badge');
+                const timeDisplay = document.getElementById('calculated-end-time-display');
+
+                if(badge) {
+                    if (isAuctionActive) {
+                        badge.textContent = "مفتوح ويستقبل مزايدات";
+                        badge.className = "px-4 py-1 rounded-full text-sm font-bold bg-emerald-100 text-emerald-700";
+                        if(timeDisplay && state.settings.endTime) {
+                             const endD = new Date(state.settings.endTime).toLocaleString('ar-OM');
+                             timeDisplay.innerHTML = `<span class="text-emerald-700"><i data-lucide="check-circle" class="w-5 h-5 inline align-text-bottom"></i> المزاد جاري حالياً وينتهي في: <strong dir="ltr">${endD}</strong></span>`;
+                        }
+                    } else {
+                        badge.textContent = "مغلق";
+                        badge.className = "px-4 py-1 rounded-full text-sm font-bold bg-red-100 text-red-700";
+                        if(timeDisplay) timeDisplay.innerHTML = '<span class="text-red-600"><i data-lucide="info" class="w-5 h-5 inline align-text-bottom"></i> المزاد متوقف حالياً. يمكنك بدء مزاد جديد.</span>';
+                    }
+                }
+            }
+            lucide.createIcons();
+        }
+
+        // تحديث مستمر (كل 10 ثواني) لضمان القفل التلقائي عند انتهاء الوقت دون الحاجة لتدخل الأدمن
+        setInterval(updateUIForAuctionState, 10000);
+
+        // ------------------ دوال الإدارة للإعدادات والتقارير ------------------ //
+
+        window.saveAuctionSettings = async function(isOpen) {
+            if(!fbUser) return;
+            
+            let endTimeISO = '';
+
+            if (isOpen) {
+                const days = parseInt(document.getElementById('admin-auction-days').value);
+                const timeStr = document.getElementById('admin-auction-time').value;
+                
+                if (!timeStr) {
+                    window.showModal('error', 'يجب تحديد وقت الإغلاق من الساعة.');
+                    return;
+                }
+
+                const [hours, minutes] = timeStr.split(':');
+                const date = new Date();
+                date.setDate(date.getDate() + days); // إضافة الأيام لتاريخ اليوم
+                date.setHours(parseInt(hours), parseInt(minutes), 0, 0); // ضبط الساعة
+                
+                endTimeISO = date.toISOString();
+            }
+
+            try {
+                await setDoc(getDocRef('settings', 'main'), {
+                    isOpen: isOpen,
+                    endTime: endTimeISO
+                });
+                window.showModal('success', isOpen ? 'تم بدء المزاد بنجاح.' : 'تم إغلاق المزاد يدوياً.');
+            } catch (error) {
+                window.showModal('error', 'حدث خطأ أثناء حفظ الإعدادات.');
+            }
+        }
+
+        window.printReportWindow = function() {
+            const totalLeaseAmount = state.slots.reduce((sum, slot) => sum + slot.currentBid, 0);
+            const reportDate = new Date().toLocaleString('ar-OM');
+            
+            let printContents = `
+                <html dir="rtl">
+                <head>
+                    <title>تقرير مزايدة فلج السيب</title>
+                    <style>
+                        body { font-family: Tahoma, Arial, sans-serif; padding: 30px; color: #111; }
+                        h1 { text-align: center; color: #78350f; border-bottom: 2px solid #78350f; padding-bottom: 10px; }
+                        p.date { text-align: center; font-size: 14px; color: #555; margin-bottom: 30px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 16px; }
+                        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+                        th { background-color: #f8fafc; color: #333; }
+                        .total-section { margin-top: 40px; padding: 20px; background-color: #f0fdf4; border: 1px solid #bbf7d0; text-align: center; border-radius: 8px;}
+                        .total-section h2 { margin: 0; color: #166534; font-size: 24px; }
+                        @media print {
+                            body { padding: 0; }
+                            .total-section { border: 2px solid #000; background-color: transparent !important;}
+                            th { background-color: #eee !important; -webkit-print-color-adjust: exact; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>تقرير نتائج مزايدة فلج السيب</h1>
+                    <p class="date">تاريخ استخراج التقرير: <strong>${reportDate}</strong></p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>الفترة الزمنية</th>
+                                <th>اسم أعلى مزايد (الفائز)</th>
+                                <th>عدد المزايدات</th>
+                                <th>السعر النهائي الواصل</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${state.slots.map(slot => `
+                                <tr>
+                                    <td><strong>${slot.label}</strong></td>
+                                    <td>${slot.highestBidder ? slot.highestBidder : '<span style="color:#888;">لم يزايد أحد</span>'}</td>
+                                    <td>${slot.bidsCount}</td>
+                                    <td style="font-weight:bold; color:green;">${slot.currentBid.toFixed(3)} ر.ع</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="total-section">
+                        <h2>إجمالي مبالغ التأجير: ${totalLeaseAmount.toFixed(3)} ر.ع</h2>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            let printWindow = window.open('', '_blank', 'width=900,height=700');
+            printWindow.document.write(printContents);
+            printWindow.document.close();
+            // الانتظار قليلاً ليتم تحميل التنسيق قبل فتح نافذة الطباعة
+            setTimeout(() => {
+                printWindow.focus();
+                printWindow.print();
+            }, 250);
+        }
+
+        window.promptResetAuction = function() {
+            promptConfirm(
+                'بدء مزاد جديد؟',
+                'هذا الإجراء سيقوم بإرجاع جميع الفترات إلى السعر الافتراضي (3.000 ر.ع) ومسح أسماء الفائزين والمزايدات الحالية استعداداً لأسبوع جديد. هل تأكدت من "طباعة التقرير" قبل التصفير؟',
+                async () => {
+                    if(!fbUser) return;
+                    try {
+                        for (let slot of state.slots) {
+                            await updateDoc(getDocRef('slots', slot.id), {
+                                currentBid: STARTING_BID,
+                                highestBidder: null,
+                                bidsCount: 0
+                            });
+                        }
+                        window.showModal('success', 'تم تصفير المزاد بنجاح وجاهز لأسبوع جديد.');
+                    } catch (e) {
+                        window.showModal('error', 'حدث خطأ أثناء التصفير.');
+                    }
+                }
+            );
+        }
+
+        // ------------------ دوال الواجهة والتحكم العامة ------------------ //
 
         window.switchView = function(viewName) {
             state.currentView = viewName;
@@ -389,6 +661,7 @@
             document.getElementById('view-dashboard').classList.add('hidden');
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
             updateHeader();
+            updateUIForAuctionState();
             if(viewName === 'auction') renderAuctionGrid();
             if(viewName === 'dashboard') renderDashboard();
         }
@@ -406,6 +679,8 @@
             const btnSubmit = document.getElementById('btn-login-submit');
             const userFooter = document.getElementById('login-user-footer');
             const phoneInput = document.getElementById('login-phone');
+            const phoneLabel = document.getElementById('label-login-phone');
+            const pinLabel = document.getElementById('label-login-pin');
 
             if(tabName === 'user') {
                 tabUser.className = 'flex-1 py-4 font-bold transition-colors bg-amber-900 text-white';
@@ -418,19 +693,33 @@
                 headerDesc.textContent = 'أدخل بيانات الدخول للمتابعة';
                 btnSubmit.className = 'w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors';
                 userFooter.classList.remove('hidden');
+                
+                if(phoneLabel) phoneLabel.innerHTML = '<i data-lucide="phone" class="w-4 h-4"></i> رقم الهاتف';
+                if(pinLabel) pinLabel.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> الرقم السري (PIN)';
                 phoneInput.placeholder = '9XXXXXXX';
+                phoneInput.type = 'tel';
+                phoneInput.dir = 'ltr';
+                phoneInput.classList.add('text-left');
+                phoneInput.classList.remove('text-right');
             } else {
                 tabAdmin.className = 'flex-1 py-4 font-bold transition-colors bg-slate-800 text-white';
                 tabUser.className = 'flex-1 py-4 font-bold transition-colors text-slate-600 hover:bg-slate-200';
                 headerBg.className = 'px-6 py-6 text-center bg-slate-800/5';
-                headerIcon.setAttribute('data-lucide', 'droplets');
+                headerIcon.setAttribute('data-lucide', 'shield-check');
                 headerIcon.setAttribute('class', 'w-12 h-12 mx-auto mb-3 text-slate-700');
                 headerTitle.textContent = 'لوحة تحكم الإدارة';
                 headerTitle.className = 'text-2xl font-bold font-arabic text-slate-800';
-                headerDesc.textContent = 'أدخل بيانات الدخول للمتابعة';
+                headerDesc.textContent = 'أدخل اسم المستخدم وكلمة المرور';
                 btnSubmit.className = 'w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors';
                 userFooter.classList.add('hidden');
+                
+                if(phoneLabel) phoneLabel.innerHTML = '<i data-lucide="user" class="w-4 h-4"></i> اسم المستخدم';
+                if(pinLabel) pinLabel.innerHTML = '<i data-lucide="key" class="w-4 h-4"></i> كلمة المرور';
                 phoneInput.placeholder = '';
+                phoneInput.type = 'text';
+                phoneInput.dir = 'auto';
+                phoneInput.classList.remove('text-left');
+                phoneInput.classList.add('text-right');
             }
 
             document.getElementById('form-register').classList.add('hidden');
@@ -509,6 +798,20 @@
 
         window.closeModal = function(type) {
             document.getElementById(`modal-${type}`).classList.add('hidden');
+        }
+
+        let confirmActionCallback = null;
+        window.promptConfirm = function(title, message, callback) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-message').textContent = message;
+            
+            const btn = document.getElementById('confirm-btn');
+            btn.onclick = () => {
+                window.closeModal('confirm');
+                if (callback) callback();
+            };
+            
+            document.getElementById('modal-confirm').classList.remove('hidden');
         }
 
         // ------------------ دوال الأعمال والمزامنة ------------------ //
@@ -619,18 +922,38 @@
                 window.showModal('error', 'غير مصرح لك بالمزايدة. المزايدة متاحة للمشتركين فقط.');
                 return;
             }
+            if (!checkAuctionTimeStatus()) {
+                window.showModal('error', 'المزاد مغلق حالياً، لا يمكنك المزايدة.');
+                return;
+            }
             if (!fbUser) return;
             
             const slot = state.slots.find(s => s.id === slotId);
             if (slot) {
                 const newBid = slot.currentBid + BID_INCREMENT;
-                // سيتم تحديث الواجهة تلقائياً بواسطة onSnapshot
                 await updateDoc(getDocRef('slots', slotId), {
                     currentBid: newBid,
                     highestBidder: state.currentUser.name,
                     bidsCount: slot.bidsCount + 1
                 });
             }
+        }
+
+        window.promptDeleteUser = function(userId, userName) {
+            promptConfirm(
+                'تأكيد الحذف',
+                `هل أنت متأكد من رغبتك في حذف المشترك "${userName}" بالكامل من النظام؟`,
+                async () => {
+                    if (fbUser) {
+                        try {
+                            await deleteDoc(getDocRef('users', userId));
+                            window.showModal('success', 'تم حذف المشترك بنجاح.');
+                        } catch (error) {
+                            window.showModal('error', 'حدث خطأ أثناء حذف المشترك.');
+                        }
+                    }
+                }
+            );
         }
 
         window.sendWhatsApp = function(userIndex) {
@@ -645,32 +968,12 @@
             window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
         }
 
-        let userToDelete = null;
-
-        window.promptDeleteUser = function(userId, userName) {
-            userToDelete = userId;
-            document.getElementById('confirm-message').textContent = `هل أنت متأكد من رغبتك في حذف المشترك "${userName}" بالكامل من النظام؟`;
-            document.getElementById('modal-confirm').classList.remove('hidden');
-        }
-
-        window.confirmDeleteUser = async function() {
-            if (userToDelete && fbUser) {
-                try {
-                    await deleteDoc(getDocRef('users', userToDelete));
-                    window.closeModal('confirm');
-                    window.showModal('success', 'تم حذف المشترك بنجاح.');
-                    userToDelete = null;
-                } catch (error) {
-                    console.error("Error deleting user: ", error);
-                    window.showModal('error', 'حدث خطأ أثناء حذف المشترك.');
-                }
-            }
-        }
-
         // ------------------ دوال العرض ------------------ //
 
         function renderAuctionGrid() {
             const grid = document.getElementById('auction-grid');
+            const isAuctionActive = checkAuctionTimeStatus();
+
             grid.innerHTML = state.slots.map(slot => `
                 <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-100 overflow-hidden relative group">
                     <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
@@ -695,10 +998,19 @@
                                 <span class="text-slate-400 text-sm italic">لا توجد مزايدات حتى الآن</span>
                             `}
                         </div>
-                        <button onclick="executeBid(${slot.id})" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-sm">
-                            <i data-lucide="gavel" class="w-5 h-5"></i>
-                            <span>زايد الآن (+200 بيسة)</span>
-                        </button>
+                        
+                        ${isAuctionActive ? `
+                            <button onclick="executeBid(${slot.id})" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-sm">
+                                <i data-lucide="gavel" class="w-5 h-5"></i>
+                                <span>زايد الآن (+200 بيسة)</span>
+                            </button>
+                        ` : `
+                            <button disabled class="w-full bg-slate-200 text-slate-500 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-not-allowed border border-slate-300">
+                                <i data-lucide="lock" class="w-5 h-5"></i>
+                                <span>المزاد مغلق</span>
+                            </button>
+                        `}
+
                         ${slot.bidsCount > 0 ? `
                             <div class="mt-3 text-xs text-slate-400 flex items-center gap-1">
                                 <i data-lucide="trending-up" class="w-3 h-3"></i> تمت المزايدة ${slot.bidsCount} مرات

@@ -257,6 +257,23 @@
         </div>
     </div>
 
+    <!-- نافذة تأكيد الحذف -->
+    <div id="modal-confirm" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden transform transition-all">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-red-600"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg mb-2">تأكيد الحذف</h3>
+                <p id="confirm-message" class="text-slate-600 mb-6"></p>
+                <div class="flex gap-3">
+                    <button onclick="confirmDeleteUser()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors">حذف نهائي</button>
+                    <button onclick="closeModal('confirm')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 rounded-xl transition-colors">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- تهيئة Firebase والمنطق البرمجي -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -266,13 +283,13 @@
 
         // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
-            apiKey: "AIzaSyDLxMMT9pGh1b2FJcfZ9Guf5OqU0eA18w0",
-            authDomain: "aoqaf-23484.firebaseapp.com",
-            projectId: "aoqaf-23484",
-            storageBucket: "aoqaf-23484.firebasestorage.app",
-            messagingSenderId: "116710495148",
-            appId: "1:116710495148:web:d1f12439aaf934acb2e009",
-            measurementId: "G-CP71DYKRP7"
+            apiKey: "AIzaSyAffSkbM4yXDON0ASVwRCr165_Gu_yGPF4",
+            authDomain: "aldhahir-stadium.firebaseapp.com",
+            projectId: "aldhahir-stadium",
+            storageBucket: "aldhahir-stadium.firebasestorage.app",
+            messagingSenderId: "561631723946",
+            appId: "1:561631723946:web:d17f9e8a95ed860b856bd3",
+            measurementId: "G-MC7EQL2GKQ"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -281,7 +298,7 @@
         const db = getFirestore(app);
 
         // مسارات قاعدة البيانات الخاصة بالفلك
-        const falajAppId = "aoqaf-23484";
+        const falajAppId = "aldhahir-stadium";
         const getCol = (colName) => collection(db, 'artifacts', falajAppId, 'public', 'data', colName);
         const getDocRef = (colName, id) => doc(db, 'artifacts', falajAppId, 'public', 'data', colName, id.toString());
 
@@ -329,14 +346,14 @@
                     isSlotsInitialized = true;
                     // إضافة الفترات الافتراضية إذا كانت فارغة
                     const defaultSlots = [
-                        { id: 1, label: '08:00 صباحاً - 11:00 صباحاً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 2, label: '11:00 صباحاً - 02:00 ظهراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 3, label: '02:00 ظهراً - 05:00 عصراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 4, label: '05:00 عصراً - 08:00 مساءً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 5, label: '08:00 مساءً - 11:00 مساءً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 6, label: '11:00 مساءً - 02:00 فجراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 7, label: '02:00 فجراً - 05:00 فجراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 8, label: '05:00 فجراً - 08:00 صباحاً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 }
+                        { id: 1, label: '08:00 مساءً - 11:00 مساءً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 2, label: '11:00 مساءً - 02:00 فجراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 3, label: '02:00 فجراً - 05:00 فجراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 4, label: '05:00 فجراً - 08:00 صباحاً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 5, label: '08:00 صباحاً - 11:00 صباحاً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 6, label: '11:00 صباحاً - 02:00 ظهراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 7, label: '02:00 ظهراً - 05:00 عصراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
+                        { id: 8, label: '05:00 عصراً - 08:00 مساءً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 }
                     ];
                     defaultSlots.forEach(s => setDoc(getDocRef('slots', s.id), s));
                 } else {
@@ -628,6 +645,28 @@
             window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`, '_blank');
         }
 
+        let userToDelete = null;
+
+        window.promptDeleteUser = function(userId, userName) {
+            userToDelete = userId;
+            document.getElementById('confirm-message').textContent = `هل أنت متأكد من رغبتك في حذف المشترك "${userName}" بالكامل من النظام؟`;
+            document.getElementById('modal-confirm').classList.remove('hidden');
+        }
+
+        window.confirmDeleteUser = async function() {
+            if (userToDelete && fbUser) {
+                try {
+                    await deleteDoc(getDocRef('users', userToDelete));
+                    window.closeModal('confirm');
+                    window.showModal('success', 'تم حذف المشترك بنجاح.');
+                    userToDelete = null;
+                } catch (error) {
+                    console.error("Error deleting user: ", error);
+                    window.showModal('error', 'حدث خطأ أثناء حذف المشترك.');
+                }
+            }
+        }
+
         // ------------------ دوال العرض ------------------ //
 
         function renderAuctionGrid() {
@@ -715,9 +754,14 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-slate-500 text-xs" dir="ltr">${user.phone}</span>
-                            <button onclick="sendWhatsApp(${idx})" class="text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded flex items-center gap-1 transition-colors">
-                                <i data-lucide="send" class="w-3 h-3"></i> إرسال واتساب
-                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="promptDeleteUser('${user.id}', '${user.name}')" class="text-xs bg-red-100 hover:bg-red-200 text-red-600 px-3 py-1.5 rounded flex items-center gap-1 transition-colors" title="حذف">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i> حذف
+                                </button>
+                                <button onclick="sendWhatsApp(${idx})" class="text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded flex items-center gap-1 transition-colors">
+                                    <i data-lucide="send" class="w-3 h-3"></i> إرسال واتساب
+                                </button>
+                            </div>
                         </div>
                     </li>
                 `).join('') + `</ul>`;

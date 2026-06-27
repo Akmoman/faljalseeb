@@ -234,7 +234,7 @@
                     <div class="bg-blue-100 p-4 rounded-full"><i data-lucide="clock" class="w-8 h-8 text-blue-600"></i></div>
                     <div>
                         <p class="text-slate-500 text-sm font-bold">ساعات الوقف (الإدارة)</p>
-                        <h3 class="text-3xl font-bold text-slate-800"><span id="stat-hours">24</span> <span class="text-sm font-normal text-slate-500">ساعة</span></h3>
+                        <h3 class="text-3xl font-bold text-slate-800"><span id="stat-hours">21</span> <span class="text-sm font-normal text-slate-500">ساعة</span></h3>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-4">
@@ -447,13 +447,19 @@
                         { id: 4, label: '05:00 فجراً - 08:00 صباحاً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
                         { id: 5, label: '08:00 صباحاً - 11:00 صباحاً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
                         { id: 6, label: '11:00 صباحاً - 02:00 ظهراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 7, label: '02:00 ظهراً - 05:00 عصراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 },
-                        { id: 8, label: '05:00 عصراً - 08:00 مساءً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 }
+                        { id: 7, label: '02:00 ظهراً - 05:00 عصراً', currentBid: STARTING_BID, highestBidder: null, bidsCount: 0 }
                     ];
                     defaultSlots.forEach(s => setDoc(getDocRef('slots', s.id), s));
                 } else {
                     state.slots = [];
-                    snapshot.forEach(doc => state.slots.push(doc.data()));
+                    snapshot.forEach(docSnap => {
+                        const data = docSnap.data();
+                        if (data.id === 8) {
+                            deleteDoc(docSnap.ref); // حذف الفترة الثامنة تلقائياً من قاعدة البيانات
+                        } else {
+                            state.slots.push(data);
+                        }
+                    });
                     state.slots.sort((a,b) => a.id - b.id);
                     if(state.currentView === 'auction') renderAuctionGrid();
                     if(state.currentView === 'dashboard') renderDashboard();
